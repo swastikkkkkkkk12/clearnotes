@@ -29,15 +29,19 @@ public class Recording extends AuditedEntity {
     @Column(name = "audio_deleted", nullable = false)
     private boolean audioDeleted;
 
+    @Column(name = "delete_audio_after_processing", nullable = false)
+    private boolean deleteAudioAfterProcessing;
+
     protected Recording() { }
 
     public Recording(AppUser user, String originalFilename, String storedFilename,
-                     String contentType, long fileSizeBytes) {
+                     String contentType, long fileSizeBytes, boolean deleteAudioAfterProcessing) {
         this.user = user;
         this.originalFilename = originalFilename;
         this.storedFilename = storedFilename;
         this.contentType = contentType;
         this.fileSizeBytes = fileSizeBytes;
+        this.deleteAudioAfterProcessing = deleteAudioAfterProcessing;
     }
 
     public AppUser getUser() { return user; }
@@ -47,4 +51,5 @@ public class Recording extends AuditedEntity {
     public long getFileSizeBytes() { return fileSizeBytes; }
     public boolean isAudioDeleted() { return audioDeleted; }
     public void setAudioDeleted(boolean audioDeleted) { this.audioDeleted = audioDeleted; }
+    public boolean isDeleteAudioAfterProcessing() { return deleteAudioAfterProcessing; }
 }

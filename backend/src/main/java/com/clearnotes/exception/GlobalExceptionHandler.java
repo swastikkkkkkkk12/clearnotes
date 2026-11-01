@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -45,6 +47,22 @@ public class GlobalExceptionHandler {
         String message = exception.getBindingResult().getFieldErrors().stream().findFirst()
                 .map(issue -> issue.getField() + " " + issue.getDefaultMessage()).orElse("Request validation failed.");
         return error(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", message, request);
+    }
+
+    @ExceptionHandler(InvalidAudioFileException.class)
+    public ResponseEntity<ApiErrorResponse> invalidAudio(InvalidAudioFileException exception, HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST, "INVALID_AUDIO_FILE", exception.getMessage(), request);
+    }
+
+    @ExceptionHandler({UploadTooLargeException.class, MaxUploadSizeExceededException.class})
+    public ResponseEntity<ApiErrorResponse> uploadTooLarge(Exception exception, HttpServletRequest request) {
+        return error(HttpStatus.PAYLOAD_TOO_LARGE, "UPLOAD_TOO_LARGE", "Audio file exceeds the 100 MB upload limit.", request);
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ApiErrorResponse> missingUpload(MissingServletRequestPartException exception,
+                                                            HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST, "MISSING_FILE", "Include an audio file in the file field.", request);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)

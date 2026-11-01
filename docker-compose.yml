@@ -27,7 +27,10 @@ services:
       SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-clearnotes}
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-clearnotes_dev_password}
       JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env using the instructions in .env.example}"
+      UPLOAD_DIR: /data/clearnotes/uploads
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
+    volumes:
+      - clearnotes_uploads:/data/clearnotes/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -45,3 +48,4 @@ services:
 
 volumes:
   mysql_data:
+  clearnotes_uploads:

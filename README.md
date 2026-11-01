@@ -1,6 +1,6 @@
 # ClearNotes
 
-ClearNotes turns audio recordings into timestamped transcripts, decisions, and tasks. This repository is being built phase by phase; Phase 0 provides the local service skeleton and health checks.
+ClearNotes turns audio recordings into timestamped transcripts, decisions, and tasks. The project is being built phase by phase; Phases 0–2 provide the local service skeleton, database schema, and authentication.
 
 ## Phase 0 services
 
@@ -16,8 +16,12 @@ Docker Desktop (or another Docker Engine with Compose) is required.
 
 ```sh
 cp .env.example .env
+openssl rand -base64 32
+# Copy the generated value into .env after JWT_SECRET=
 docker compose up --build
 ```
+
+Keep `.env` private and untracked. The JWT signing secret must be a unique Base64 value containing at least 32 random bytes.
 
 Wait for the services to start, then verify the health endpoints:
 
@@ -33,6 +37,14 @@ Stop the services with `docker compose down`. The named `mysql_data` volume keep
 
 The credentials in `.env.example` are for local development only. Do not use them in a deployed environment.
 
+## Authentication API
+
+- `POST /api/auth/register` accepts `{"email":"you@example.com","password":"at-least-12-characters"}` and returns a bearer token.
+- `POST /api/auth/login` accepts the same fields and returns a bearer token.
+- `GET /api/auth/me` requires `Authorization: Bearer <accessToken>` and returns the signed-in user's ID and email.
+
+Passwords are stored as BCrypt hashes. Access tokens expire after one hour. Requests for a recording must use an owner-scoped database lookup; the repository provides `findByIdAndUser_Id` for this purpose.
+
 ## Planned project areas
 
-The React frontend, schema migrations, authentication, audio processing, and evaluation tooling will be added in their corresponding phases.
+The React frontend, audio processing pipeline, notes extraction, exports, and evaluation tooling will be added in their corresponding phases.

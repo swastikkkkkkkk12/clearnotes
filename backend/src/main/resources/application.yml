@@ -13,6 +13,12 @@ spring:
   flyway:
     enabled: true
 
+clearnotes:
+  jwt:
+    secret: ${JWT_SECRET}
+    issuer: clearnotes
+    access-token-ttl-seconds: 3600
+
 management:
   endpoints:
     web:

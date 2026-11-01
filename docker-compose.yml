@@ -23,6 +23,9 @@ services:
       - "${BACKEND_PORT:-8080}:8080"
     environment:
       SPRING_APPLICATION_NAME: clearnotes-backend
+      SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/${MYSQL_DATABASE:-clearnotes}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER:-clearnotes}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD:-clearnotes_dev_password}
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
     depends_on:
       db:

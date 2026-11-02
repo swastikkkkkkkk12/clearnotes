@@ -368,7 +368,7 @@ function LandingPage({ onLogin, onRegister }) {
           <article className="feature-card"><span className="feature-number">03</span><div className="feature-icon">✦</div><h3>See what comes next</h3><p>Review decisions, tasks, and meeting details. Missing owners or dates stay “Not specified.”</p></article>
         </div>
       </section>
-      <section className="landing-quote-band" id="why-clearnotes"><span className="quote-band-mark">“</span><p>Useful notes should help you remember what happened—and show you where to listen again.</p><span className="quote-band-caption">A ClearNotes principle</span><button className="button button-light" onClick={onRegister}>Start with a recording <span aria-hidden="true">→</span></button></section>
+      <section className="landing-quote-band" id="why-clearnotes"><span className="quote-band-mark">“</span><p>Useful notes should help you remember what happened and show you where to listen again.</p><span className="quote-band-caption">A ClearNotes principle</span><button className="button button-light" onClick={onRegister}>Start with a recording <span aria-hidden="true">→</span></button></section>
     </main>
     <footer className="landing-footer"><Brand /><span>ClearNotes keeps each note connected to its source.</span><button className="text-button" onClick={onLogin}>Sign in</button></footer>
   </div>;

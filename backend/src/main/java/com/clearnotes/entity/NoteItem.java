@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
@@ -45,6 +46,12 @@ public class NoteItem extends AuditedEntity {
     @Column(name = "meeting_end_time")
     private LocalTime meetingEndTime;
 
+    @Column(name = "reviewed_at")
+    private LocalDateTime reviewedAt;
+
+    @Column(name = "dismissed_at")
+    private LocalDateTime dismissedAt;
+
     protected NoteItem() { }
 
     public NoteItem(Recording recording, TranscriptSegment sourceSegment, NoteType type,
@@ -77,4 +84,8 @@ public class NoteItem extends AuditedEntity {
     public void setMeetingStartTime(LocalTime meetingStartTime) { this.meetingStartTime = meetingStartTime; }
     public LocalTime getMeetingEndTime() { return meetingEndTime; }
     public void setMeetingEndTime(LocalTime meetingEndTime) { this.meetingEndTime = meetingEndTime; }
+    public LocalDateTime getReviewedAt() { return reviewedAt; }
+    public void setReviewedAt(LocalDateTime reviewedAt) { this.reviewedAt = reviewedAt; }
+    public LocalDateTime getDismissedAt() { return dismissedAt; }
+    public void setDismissedAt(LocalDateTime dismissedAt) { this.dismissedAt = dismissedAt; }
 }

@@ -70,6 +70,12 @@ public class GlobalExceptionHandler {
         return error(HttpStatus.NOT_FOUND, "NOT_FOUND", exception.getMessage(), request);
     }
 
+    @ExceptionHandler(UnsupportedExportFormatException.class)
+    public ResponseEntity<ApiErrorResponse> unsupportedExport(UnsupportedExportFormatException exception,
+                                                                HttpServletRequest request) {
+        return error(HttpStatus.BAD_REQUEST, "UNSUPPORTED_EXPORT_FORMAT", exception.getMessage(), request);
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> forbidden(AccessDeniedException exception, HttpServletRequest request) {
         return error(HttpStatus.FORBIDDEN, "FORBIDDEN", "You are not allowed to access this resource.", request);

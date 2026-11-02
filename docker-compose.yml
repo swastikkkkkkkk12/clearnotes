@@ -32,6 +32,7 @@ services:
       TRANSCRIPTION_BASE_URL: http://transcription-service:8000
       OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
     volumes:
       - clearnotes_uploads:/data/clearnotes/uploads
     depends_on:
@@ -39,6 +40,15 @@ services:
         condition: service_healthy
       transcription-service:
         condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      VITE_API_BASE_URL: "http://localhost:${BACKEND_PORT:-8080}"
+    depends_on:
+      - backend
 
   transcription-service:
     build: ./transcription-service

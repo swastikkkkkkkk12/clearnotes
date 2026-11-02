@@ -1,6 +1,7 @@
 package com.clearnotes.service;
 
 import com.clearnotes.dto.recording.NoteItemResponse;
+import com.clearnotes.dto.recording.SetNoteStateRequest;
 import com.clearnotes.dto.recording.TranscriptSegmentResponse;
 import com.clearnotes.dto.recording.UpdateNoteRequest;
 import com.clearnotes.entity.NoteItem;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class RecordingNotesService {
@@ -27,8 +29,8 @@ public class RecordingNotesService {
     }
 
     @Transactional(readOnly = true)
-    public List<NoteItemResponse> getNotes(Long recordingId, Long userId) {
-        return notes.findAllByRecording_IdAndRecording_User_IdOrderByIdAsc(recordingId, userId).stream()
+    public List<NoteItemResponse> getNotes(Long recordingId, Long userId, boolean includeDismissed) {
+        return notes.findVisibleForUser(recordingId, userId, includeDismissed).stream()
                 .map(this::toResponse)
                 .toList();
     }
@@ -65,6 +67,15 @@ public class RecordingNotesService {
         notes.delete(findOwnedNote(recordingId, noteId, userId));
     }
 
+    @Transactional
+    public NoteItemResponse setNoteState(Long recordingId, Long noteId, Long userId, SetNoteStateRequest request) {
+        NoteItem note = findOwnedNote(recordingId, noteId, userId);
+        LocalDateTime now = LocalDateTime.now();
+        note.setReviewedAt(request.reviewed() ? (note.getReviewedAt() == null ? now : note.getReviewedAt()) : null);
+        note.setDismissedAt(request.dismissed() ? (note.getDismissedAt() == null ? now : note.getDismissedAt()) : null);
+        return toResponse(note);
+    }
+
     private NoteItem findOwnedNote(Long recordingId, Long noteId, Long userId) {
         return notes.findByIdAndRecording_IdAndRecording_User_Id(noteId, recordingId, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Note not found."));
@@ -78,7 +89,7 @@ public class RecordingNotesService {
                 : new GoogleCalendarLinkService.CalendarLink(null, null);
         return new NoteItemResponse(note.getId(), note.getType(), note.getContent(), note.getOwner(),
                 note.getDueDate(), sourceSegmentId, note.getMeetingDate(), note.getMeetingStartTime(),
-                note.getMeetingEndTime(), link.url(), link.message());
+                note.getMeetingEndTime(), link.url(), link.message(), note.getReviewedAt(), note.getDismissedAt());
     }
 
     private static String clean(String value) {

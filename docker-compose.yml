@@ -39,6 +39,15 @@ services:
     build: ./transcription-service
     ports:
       - "${TRANSCRIPTION_PORT:-8000}:8000"
+    environment:
+      WHISPER_MODEL: ${WHISPER_MODEL:-tiny}
+      WHISPER_DEVICE: cpu
+      WHISPER_COMPUTE_TYPE: int8
+      WHISPER_CPU_THREADS: ${WHISPER_CPU_THREADS:-4}
+      MAX_AUDIO_BYTES: 104857600
+      HF_HOME: /models/cache
+    volumes:
+      - whisper_model_cache:/models/cache
     healthcheck:
       test: ["CMD", "python", "-c", "from urllib.request import urlopen; urlopen('http://127.0.0.1:8000/health')"]
       interval: 10s
@@ -49,3 +58,4 @@ services:
 volumes:
   mysql_data:
   clearnotes_uploads:
+  whisper_model_cache:

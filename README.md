@@ -43,6 +43,15 @@ The credentials in `.env.example` are for local development only. Do not use the
 - `POST /api/auth/login` accepts the same fields and returns a bearer token.
 - `GET /api/auth/me` requires `Authorization: Bearer <accessToken>` and returns the signed-in user's ID and email.
 - `POST /api/recordings` requires a bearer token and multipart fields `file` and optional `deleteAudioAfterProcessing` (`true` or `false`). It accepts MP3, WAV, M4A, OGG, WebM, and FLAC files up to 100 MB, stores the audio in a Docker volume, and creates a `QUEUED` processing job.
+- `POST http://localhost:8000/transcribe` accepts multipart field `file` and optional `language` (for example `en`). It returns the detected language and transcript segments with `start`, `end`, and `text`. The default CPU model is `tiny`; the model downloads on the first transcription and is cached in a Docker volume.
+
+Try the transcription endpoint with an audio file:
+
+```sh
+curl -X POST http://localhost:8000/transcribe \
+  -F 'file=@./meeting.wav' \
+  -F 'language=en'
+```
 
 Passwords are stored as BCrypt hashes. Access tokens expire after one hour. Requests for a recording must use an owner-scoped database lookup; the repository provides `findByIdAndUser_Id` for this purpose.
 

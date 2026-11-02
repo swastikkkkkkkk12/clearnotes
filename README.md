@@ -1,6 +1,6 @@
 # ClearNotes
 
-ClearNotes turns audio recordings into timestamped transcripts, decisions, and tasks. The project is being built phase by phase; Phases 0–2 provide the local service skeleton, database schema, and authentication.
+ClearNotes turns audio recordings into timestamped transcripts, evidence-linked decisions and tasks, and meeting reminders. The local backend, database schema, authentication, asynchronous transcription, and Ollama note extraction are implemented; the React review interface and exports remain planned.
 
 ## Phase 0 services
 
@@ -43,7 +43,8 @@ The credentials in `.env.example` are for local development only. Do not use the
 - `POST /api/auth/login` accepts the same fields and returns a bearer token.
 - `GET /api/auth/me` requires `Authorization: Bearer <accessToken>` and returns the signed-in user's ID and email.
 - `POST /api/recordings` requires a bearer token and multipart fields `file` and optional `deleteAudioAfterProcessing` (`true` or `false`). It accepts MP3, WAV, M4A, OGG, WebM, and FLAC files up to 100 MB, stores the audio in a Docker volume, and creates a `QUEUED` processing job.
-- `GET /api/jobs/{jobId}` requires the same bearer token and returns the job status and timestamps. The authenticated user's ownership is checked for every status lookup. Jobs transcribe audio in the background and save timestamped transcript segments. The `EXTRACTING` stage is a placeholder until Phase 6 adds note extraction.
+- `GET /api/jobs/{jobId}` requires the same bearer token and returns the job status and timestamps. The authenticated user's ownership is checked for every status lookup. Jobs transcribe audio, use local Ollama for evidence-linked decisions and tasks, and derive meeting reminders only from explicit transcript dates and times.
+- `GET /api/recordings/{recordingId}/notes` requires a bearer token and returns evidence-linked decisions, tasks, and meeting details. It returns a Google Calendar pre-filled link for an exact-date all-day meeting or a meeting with explicit start and end times. Relative dates never create a guessed event. If the transcript gives a start time but no end time, ClearNotes leaves the link empty and asks you to add the duration in Google Calendar. Review and save linked events yourself, then choose a notification.
 - `POST http://localhost:8000/transcribe` accepts multipart field `file` and optional `language` (for example `en`). It returns the detected language and transcript segments with `start`, `end`, and `text`. The default CPU model is `tiny`; the model downloads on the first transcription and is cached in a Docker volume.
 
 Try the transcription endpoint with an audio file:
@@ -54,8 +55,10 @@ curl -X POST http://localhost:8000/transcribe \
   -F 'language=en'
 ```
 
+The backend connects to Ollama running on the Mac at `host.docker.internal:11434`. Ensure Ollama is running and has the configured model (default `llama3.2:3b`); the model is available locally and can be checked with `ollama list`.
+
 Passwords are stored as BCrypt hashes. Access tokens expire after one hour. Requests for a recording must use an owner-scoped database lookup; the repository provides `findByIdAndUser_Id` for this purpose.
 
 ## Planned project areas
 
-The React frontend, audio processing pipeline, notes extraction, exports, and evaluation tooling will be added in their corresponding phases.
+The React frontend, exports, and evaluation tooling are planned for later phases.

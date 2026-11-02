@@ -28,6 +28,9 @@ clearnotes:
     access-token-ttl-seconds: 3600
   transcription:
     base-url: ${TRANSCRIPTION_BASE_URL:http://localhost:8000}
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:llama3.2:3b}
 
 management:
   endpoints:

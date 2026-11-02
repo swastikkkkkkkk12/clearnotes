@@ -30,6 +30,8 @@ services:
       UPLOAD_DIR: /data/clearnotes/uploads
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
       TRANSCRIPTION_BASE_URL: http://transcription-service:8000
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2:3b}
     volumes:
       - clearnotes_uploads:/data/clearnotes/uploads
     depends_on:

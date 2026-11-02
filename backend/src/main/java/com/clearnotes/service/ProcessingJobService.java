@@ -68,7 +68,6 @@ public class ProcessingJobService {
         ProcessingJob job = findJob(jobId);
         if (job.getStatus() != JobStatus.EXTRACTING)
             throw new IllegalStateException("Job is not ready to complete.");
-        // Note extraction is added in Phase 6. The transcript is ready at this stage.
         job.setStatus(JobStatus.DONE);
         job.setCompletedAt(LocalDateTime.now());
     }
@@ -110,8 +109,8 @@ public class ProcessingJobService {
         return switch (status) {
             case QUEUED -> "Waiting to start.";
             case TRANSCRIBING -> "Converting audio to text.";
-            case EXTRACTING -> "Transcript saved; notes extraction is coming in Phase 6.";
-            case DONE -> "Transcript is ready.";
+            case EXTRACTING -> "Extracting decisions, tasks, and meeting details.";
+            case DONE -> "Transcript and notes are ready.";
             case FAILED -> FAILURE_MESSAGE;
         };
     }

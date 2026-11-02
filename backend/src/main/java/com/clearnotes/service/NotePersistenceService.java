@@ -1,0 +1,51 @@
+package com.clearnotes.service;
+
+import com.clearnotes.entity.NoteItem;
+import com.clearnotes.entity.Recording;
+import com.clearnotes.entity.TranscriptSegment;
+import com.clearnotes.exception.ResourceNotFoundException;
+import com.clearnotes.repository.NoteItemRepository;
+import com.clearnotes.repository.RecordingRepository;
+import com.clearnotes.repository.TranscriptSegmentRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+@Service
+public class NotePersistenceService {
+    private final NoteItemRepository notes;
+    private final RecordingRepository recordings;
+    private final TranscriptSegmentRepository segments;
+
+    public NotePersistenceService(NoteItemRepository notes, RecordingRepository recordings,
+                                  TranscriptSegmentRepository segments) {
+        this.notes = notes;
+        this.recordings = recordings;
+        this.segments = segments;
+    }
+
+    @Transactional
+    public void replaceNotes(Long recordingId, List<ValidatedNote> validated) {
+        Recording recording = recordings.findById(recordingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Recording not found."));
+        Map<Long, TranscriptSegment> sourceById = segments.findAllByRecording_IdOrderBySegmentIndexAsc(recordingId)
+                .stream().collect(Collectors.toMap(TranscriptSegment::getId, segment -> segment));
+        notes.deleteAllByRecording_Id(recordingId);
+        List<NoteItem> items = validated.stream().map(note -> {
+            TranscriptSegment source = sourceById.get(note.sourceSegmentId());
+            if (source == null) throw new IllegalArgumentException("Note source segment does not belong to this recording.");
+            return new NoteItem(recording, source, note.type(), note.content(), note.owner(), note.dueDate(),
+                    note.meetingDate(), note.meetingStartTime(), note.meetingEndTime());
+        }).toList();
+        notes.saveAll(items);
+    }
+
+    public record ValidatedNote(com.clearnotes.entity.NoteType type, String content,
+                                Long sourceSegmentId, String owner, LocalDate dueDate,
+                                LocalDate meetingDate, LocalTime meetingStartTime, LocalTime meetingEndTime) { }
+}

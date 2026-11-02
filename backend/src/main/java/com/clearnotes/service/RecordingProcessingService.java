@@ -11,12 +11,14 @@ public class RecordingProcessingService {
     private final ProcessingJobService jobs;
     private final AudioStorageService storage;
     private final TranscriptionClient transcription;
+    private final NoteExtractionService noteExtraction;
 
     public RecordingProcessingService(ProcessingJobService jobs, AudioStorageService storage,
-                                      TranscriptionClient transcription) {
+                                      TranscriptionClient transcription, NoteExtractionService noteExtraction) {
         this.jobs = jobs;
         this.storage = storage;
         this.transcription = transcription;
+        this.noteExtraction = noteExtraction;
     }
 
     public void process(Long jobId) {
@@ -25,6 +27,7 @@ public class RecordingProcessingService {
         try {
             var response = transcription.transcribe(storage.pathFor(input.storedFilename()));
             jobs.saveTranscriptAndEnterExtraction(jobId, response.segments());
+            noteExtraction.extract(input.recordingId());
             jobs.complete(jobId);
         } catch (Exception failure) {
             log.error("Audio processing failed for job {}", jobId, failure);

@@ -46,6 +46,14 @@ export function getTranscript(token, recordingId) { return json(`/api/recordings
 export function getNotes(token, recordingId, includeDismissed = false) {
   return json(`/api/recordings/${recordingId}/notes?includeDismissed=${includeDismissed}`, token);
 }
+export function getDecisionRecords(token, recordingId) {
+  return json(`/api/recordings/${recordingId}/decisions`, token);
+}
+export function updateDecisionRecord(token, recordingId, decisionId, fields) {
+  return json(`/api/recordings/${recordingId}/decisions/${decisionId}`, token, {
+    method: 'PATCH', body: JSON.stringify(fields),
+  });
+}
 export function updateNote(token, recordingId, noteId, fields) {
   return json(`/api/recordings/${recordingId}/notes/${noteId}`, token, {
     method: 'PUT', body: JSON.stringify(fields),

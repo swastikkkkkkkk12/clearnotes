@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AudioCapture from './components/AudioCapture.jsx';
 import {
   apiBase, authenticate, createAudioLink, deleteNote, downloadBlob, downloadExport,
-  getJob, getMe, getNotes, getTranscript, listRecordings, updateNote, updateNoteState,
+  getDecisionRecords, getJob, getMe, getNotes, getTranscript, listRecordings, updateDecisionRecord, updateNote, updateNoteState,
   uploadRecording,
 } from './api.js';
 
@@ -29,6 +29,8 @@ export default function App() {
   const [recordings, setRecordings] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [notes, setNotes] = useState([]);
+  const [decisionRecords, setDecisionRecords] = useState([]);
+  const [decisionDrafts, setDecisionDrafts] = useState({});
   const [transcript, setTranscript] = useState([]);
   const [showDismissed, setShowDismissed] = useState(false);
   const [audioUrl, setAudioUrl] = useState('');
@@ -63,10 +65,14 @@ export default function App() {
     if (!token || !id) return;
     setBusyReview(true); setError('');
     try {
-      const [noteData, transcriptData] = await Promise.all([
-        getNotes(token, id, includeDismissed), getTranscript(token, id),
+      const [noteData, transcriptData, decisionData] = await Promise.all([
+        getNotes(token, id, includeDismissed), getTranscript(token, id), getDecisionRecords(token, id),
       ]);
       setNotes(noteData || []); setTranscript(transcriptData || []); setHighlight(null);
+      setDecisionRecords(decisionData || []);
+      setDecisionDrafts(Object.fromEntries((decisionData || []).map((item) => [item.id, {
+        decision: item.decision || '', approvedBy: item.approvedBy || '', followUpStatus: item.followUpStatus,
+      }])));
       const row = recordingsRef.current.find((item) => item.id === id);
       if (row?.audioDeleted) setAudioUrl('');
       else {
@@ -74,7 +80,7 @@ export default function App() {
         setAudioUrl(new URL(link.url, apiBase()).toString());
       }
     } catch (cause) {
-      setError(ERROR_TEXT(cause)); setNotes([]); setTranscript([]); setAudioUrl('');
+      setError(ERROR_TEXT(cause)); setNotes([]); setTranscript([]); setDecisionRecords([]); setDecisionDrafts({}); setAudioUrl('');
     } finally { setBusyReview(false); }
   }, [selectedId, showDismissed, token]);
 
@@ -111,7 +117,7 @@ export default function App() {
 
   function signOut() {
     localStorage.removeItem('clearnotes-token'); setToken(''); setUser(null);
-    setRecordings([]); setSelectedId(null); setNotes([]); setTranscript([]); setAudioUrl(''); setPassword('');
+    setRecordings([]); setSelectedId(null); setNotes([]); setTranscript([]); setDecisionRecords([]); setDecisionDrafts({}); setAudioUrl(''); setPassword('');
     setAuthVisible(false);
   }
 
@@ -208,6 +214,20 @@ export default function App() {
     try {
       await deleteNote(token, selectedId, note.id);
       setNotes((current) => current.filter((item) => item.id !== note.id)); setNotice('Note deleted.');
+    } catch (cause) { setError(ERROR_TEXT(cause)); }
+  }
+
+  async function saveDecisionRecord(record) {
+    const fields = decisionDrafts[record.id];
+    if (!fields?.decision.trim()) { setError('Decision text cannot be empty.'); return; }
+    setError('');
+    try {
+      const saved = await updateDecisionRecord(token, selectedId, record.id, {
+        decision: fields.decision, approvedBy: fields.approvedBy || null,
+        followUpStatus: fields.followUpStatus,
+      });
+      setDecisionRecords((current) => current.map((item) => item.id === saved.id ? saved : item));
+      setNotice('Decision tracker updated.');
     } catch (cause) { setError(ERROR_TEXT(cause)); }
   }
 
@@ -314,6 +334,25 @@ export default function App() {
                   </>}
                 </article>) : <p className="empty-group">No {group.label.toLowerCase()} found in this recording.</p>}
               </section>)}</div>
+
+              <section className="decision-tracker" aria-labelledby="decision-tracker-title">
+                <div className="decision-tracker-heading"><div><p className="eyebrow">Separate decision log</p><h3 id="decision-tracker-title">Decision tracker</h3></div><span className="segment-count">{decisionRecords.length} decision{decisionRecords.length === 1 ? '' : 's'}</span></div>
+                {!decisionRecords.length ? <p className="empty-group">No decisions found in this recording.</p> : <div className="decision-record-list">
+                  {decisionRecords.map((record) => {
+                    const draft = decisionDrafts[record.id] || { decision: record.decision, approvedBy: record.approvedBy || '', followUpStatus: record.followUpStatus };
+                    return <article className="decision-record-card" key={record.id}>
+                      <div className="decision-record-top"><span className={`decision-status status-${record.followUpStatus.toLowerCase()}`}>{record.followUpStatus.replace('_', ' ')}</span><span className="decision-time">Transcript time {timestamp(record.startSeconds)}</span></div>
+                      <label className="decision-field">Decision<textarea rows="2" value={draft.decision} onChange={(event) => setDecisionDrafts((current) => ({ ...current, [record.id]: { ...draft, decision: event.target.value } }))} /></label>
+                      <button className="decision-evidence" onClick={() => { const source = transcript.find((segment) => segment.id === record.sourceSegmentId); if (source) seek(source); }}><span>Transcript evidence · {timestamp(record.startSeconds)}</span><span>{record.evidence}</span><b>↗ Show in transcript</b></button>
+                      <div className="decision-fields-row">
+                        <label className="decision-field">Who approved it<input value={draft.approvedBy} placeholder="Not specified" onChange={(event) => setDecisionDrafts((current) => ({ ...current, [record.id]: { ...draft, approvedBy: event.target.value } }))} /></label>
+                        <label className="decision-field">Follow-up status<select value={draft.followUpStatus} onChange={(event) => setDecisionDrafts((current) => ({ ...current, [record.id]: { ...draft, followUpStatus: event.target.value } }))}><option value="OPEN">Open</option><option value="IN_PROGRESS">In progress</option><option value="COMPLETED">Completed</option></select></label>
+                      </div>
+                      <div className="decision-record-actions"><span className="decision-approved">Approved by: {record.approvedBy || 'Not specified'}</span><button className="button button-outline button-small" onClick={() => saveDecisionRecord(record)}>Save tracker entry</button></div>
+                    </article>;
+                  })}
+                </div>}
+              </section>
 
               <section className="transcript-section"><div className="transcript-heading"><div><p className="eyebrow">Source material</p><h3>Transcript</h3></div><span className="segment-count">{transcript.length} segments</span></div>
                 {selected.audioDeleted && <div className="audio-unavailable"><span>Audio deleted after processing</span><small>The transcript and notes are still available.</small></div>}

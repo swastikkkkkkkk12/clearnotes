@@ -1,5 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
 :root {
-  font-family:Inter,'Segoe UI',Arial,sans-serif;
+  font-family:'Manrope','Segoe UI',Arial,sans-serif;
   color:#172b2a;
   background:#f5f7f4;
   font-synthesis:none;
@@ -22,8 +24,12 @@ body {
   min-width:320px;
   min-height:100vh
 }
-button,input,textarea {
+button,input,textarea,select {
   font:inherit
+}
+h1,h2,h3,h4,h5,h6 {
+  font-family:'Fraunces',Georgia,serif;
+  font-style:normal
 }
 button {
   cursor:pointer
@@ -594,6 +600,118 @@ a {
 .edit-form textarea {
   resize:vertical
 }
+.decision-tracker {
+  border-top:1px solid var(--line);
+  padding:20px 24px 24px
+}
+.decision-tracker-heading {
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  margin-bottom:14px
+}
+.decision-tracker-heading .eyebrow {
+  margin:0 0 5px
+}
+.decision-tracker-heading h3 {
+  font-size:18px;
+  margin:0
+}
+.decision-record-list {
+  display:grid;
+  gap:12px
+}
+.decision-record-card {
+  border:1px solid #e3ebe4;
+  border-radius:13px;
+  background:#fbfcfa;
+  padding:15px;
+  display:grid;
+  gap:12px
+}
+.decision-record-top,.decision-record-actions {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px
+}
+.decision-status {
+  border-radius:20px;
+  padding:5px 9px;
+  color:#53685e;
+  background:#edf2ee;
+  font-size:10px;
+  font-weight:700;
+  text-transform:capitalize
+}
+.status-in_progress {
+  background:#fff3dc;
+  color:#856321
+}
+.status-completed {
+  background:#e6f4eb;
+  color:#147a63
+}
+.decision-time,.decision-approved {
+  color:#73827a;
+  font-size:10px
+}
+.decision-field {
+  display:grid;
+  gap:6px;
+  color:#5b7066;
+  font-size:11px;
+  font-weight:600
+}
+.decision-field input,.decision-field textarea,.decision-field select {
+  width:100%;
+  border:1px solid #dce5df;
+  border-radius:8px;
+  padding:9px 10px;
+  background:#fff;
+  color:var(--ink);
+  outline:none;
+  font-size:12px
+}
+.decision-field textarea {
+  resize:vertical;
+  line-height:1.5
+}
+.decision-field input:focus,.decision-field textarea:focus,.decision-field select:focus {
+  border-color:#75ac91;
+  box-shadow:0 0 0 3px #e4f2e8
+}
+.decision-evidence {
+  display:grid;
+  gap:5px;
+  width:100%;
+  border:1px solid #e4eee5;
+  border-radius:9px;
+  padding:11px;
+  background:#f3f8f3;
+  color:#4d665b;
+  text-align:left;
+  font-size:11px;
+  line-height:1.5
+}
+.decision-evidence>span:first-child {
+  color:#147a63;
+  font-size:10px;
+  font-weight:700
+}
+.decision-evidence b {
+  color:#147a63;
+  font-size:10px
+}
+.decision-fields-row {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+.decision-record-actions {
+  padding-top:10px;
+  border-top:1px solid #edf0ec
+}
 .time-fields {
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -979,6 +1097,19 @@ a {
 .note-actions {
     gap:12px
   }
+  .decision-tracker {
+    padding:17px 15px 21px
+  }
+  .decision-tracker-heading h3 {
+    font-size:16px
+  }
+  .decision-fields-row {
+    grid-template-columns:1fr
+  }
+  .decision-record-actions {
+    align-items:flex-start;
+    flex-direction:column
+  }
 .transcript-section {
     padding:17px 15px 22px
   }
@@ -1048,9 +1179,9 @@ html { scroll-behavior:smooth }
 }
 .hero-copy { max-width:640px }
 .hero-copy .eyebrow { font-size:11px; letter-spacing:1.8px; margin-bottom:23px }
-.hero-copy h1 { font-size:clamp(48px,6vw,78px); letter-spacing:-4px; line-height:1.02; margin:0 0 23px; color:var(--ink) }
+.hero-copy h1 { font-size:clamp(48px,6vw,78px); letter-spacing:-1px; line-height:1.08; margin:0 0 23px; color:var(--ink) }
 .hero-copy h1 span { color:var(--green); font-weight:600 }
-.hero-description { max-width:555px; color:#62736b; font-size:16px; line-height:1.75; margin:0 }
+.hero-description { max-width:555px; color:#4c5d53; font-size:17px; line-height:1.7; margin:0 }
 .hero-actions { display:flex; align-items:center; gap:21px; margin-top:30px }
 .hero-actions .button { padding:14px 18px; font-size:13px }
 .hero-actions .text-button { font-size:12px }
@@ -1068,7 +1199,7 @@ html { scroll-behavior:smooth }
 .visual-wave { color:var(--green); font-size:15px; letter-spacing:1px; white-space:nowrap; animation:wave-shift 2.6s ease-in-out infinite alternate }
 .visual-quote { min-height:205px; padding:50px 25px 20px; position:relative; display:flex; flex-direction:column; justify-content:center }
 .quote-mark { position:absolute; top:15px; left:20px; font-size:66px; line-height:1; color:#91bda0; font-family:Georgia,serif }
-.visual-quote p { max-width:420px; margin:14px 0 22px; font-size:clamp(23px,2.5vw,32px); line-height:1.2; letter-spacing:-1px; font-weight:650; color:#1e3930; animation:quote-in .55s ease both }
+.visual-quote p { max-width:420px; margin:14px 0 22px; font-size:clamp(26px,2.7vw,36px); line-height:1.25; letter-spacing:0; font-weight:600; color:#1e3930; animation:quote-in .55s ease both }
 .quote-progress { display:block; width:100%; height:3px; border-radius:9px; background:#d5e6d9; overflow:hidden }
 .quote-progress i { display:block; width:33.333%; height:100%; border-radius:inherit; background:var(--green); transition:transform .35s ease }
 .visual-flow { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:8px 0 21px }
@@ -1081,21 +1212,30 @@ html { scroll-behavior:smooth }
 .visual-tags span:last-child { color:var(--green); background:#e1f1e6 }
 .landing-proof { width:min(1320px,calc(100% - 64px)); margin:0 auto; padding:55px 5% 130px; scroll-margin-top:110px }
 .landing-proof>.eyebrow { font-size:10px; margin-bottom:12px }
-.landing-proof>h2 { max-width:720px; margin:0 0 42px; color:var(--ink); font-size:clamp(32px,4vw,49px); line-height:1.12; letter-spacing:-2px }
+.landing-shell .hero-copy h1,
+.landing-shell .landing-proof>h2,
+.landing-shell .feature-card h3,
+.landing-shell .visual-quote p,
+.landing-shell .landing-quote-band p {
+  font-family:'Fraunces',Georgia,serif;
+  font-weight:400;
+  font-style:normal
+}
+.landing-proof>h2 { max-width:720px; margin:0 0 42px; color:var(--ink); font-size:clamp(36px,4vw,54px); line-height:1.16; letter-spacing:-.5px }
 .feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px }
 .feature-card { min-height:245px; padding:25px 23px; background:#fff; border:1px solid var(--line); border-radius:16px; box-shadow:0 10px 30px #21432b08; position:relative; transition:transform .2s,box-shadow .2s }
 .feature-card:hover { transform:translateY(-4px); box-shadow:0 18px 38px #21432b12 }
 .feature-number { position:absolute; top:25px; right:24px; color:#96a69b; font-size:10px; font-variant-numeric:tabular-nums }
 .feature-icon { width:44px; height:44px; display:grid; place-items:center; color:var(--green); background:#eaf4ed; border-radius:14px; font-size:21px; margin-bottom:27px }
-.feature-card h3 { margin:0 0 8px; font-size:16px; letter-spacing:-.35px }
-.feature-card p { max-width:310px; margin:0; color:var(--muted); font-size:12px; line-height:1.65 }
+.feature-card h3 { margin:0 0 9px; font-size:21px; line-height:1.25; letter-spacing:0 }
+.feature-card p { max-width:310px; margin:0; color:#4c5d53; font-size:15px; line-height:1.65 }
 .landing-quote-band { width:min(1320px,calc(100% - 64px)); min-height:275px; margin:0 auto 95px; padding:45px 7%; border-radius:23px; background:#e4efe6; border:1px solid #d6e5d9; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; position:relative; scroll-margin-top:110px }
 .quote-band-mark { position:absolute; left:6.8%; top:16px; color:#9cbea5; font-family:Georgia,serif; font-size:72px; line-height:1 }
-.landing-quote-band p { max-width:760px; margin:16px 0 12px; font-size:clamp(23px,3.1vw,38px); line-height:1.22; letter-spacing:-1.1px; font-weight:600; color:#203a2f }
-.quote-band-caption { color:#6c8073; font-size:10px; margin-bottom:20px }
+.landing-quote-band p { max-width:760px; margin:16px 0 12px; font-size:clamp(23px,3.1vw,38px); line-height:1.25; letter-spacing:0; color:#203a2f }
+.quote-band-caption { color:#506258; font-size:12px; margin-bottom:20px }
 .landing-quote-band .button { font-size:11px; padding:10px 13px }
 .landing-footer { width:min(1320px,calc(100% - 64px)); margin:0 auto; min-height:88px; padding:20px 0; display:flex; align-items:center; gap:22px; border-top:1px solid var(--line) }
-.landing-footer>span { flex:1; color:#87958d; font-size:10px }
+.landing-footer>span { flex:1; color:#5f7066; font-size:12px }
 .landing-footer .text-button { color:var(--green); font-size:11px }
 .auth-back { display:block; margin:0 0 25px; color:var(--green); font-size:11px }
 
@@ -1138,8 +1278,8 @@ html { scroll-behavior:smooth }
   .landing-actions .button { padding:9px 11px; font-size:11px }
   .landing-login { font-size:11px }
   .landing-hero { width:calc(100% - 30px); min-height:0; padding:82px 4% 74px; grid-template-columns:1fr; gap:42px }
-  .hero-copy h1 { font-size:clamp(43px,12vw,62px); letter-spacing:-2.7px }
-  .hero-description { font-size:14px }
+  .hero-copy h1 { font-size:clamp(48px,12vw,66px); line-height:1.08; letter-spacing:-.4px }
+  .hero-description { font-size:15px; color:#4c5d53 }
   .hero-actions { align-items:flex-start; flex-direction:column; gap:13px }
   .hero-visual { min-height:350px; padding:18px }
   .visual-quote { min-height:185px; padding-left:12px; padding-right:12px }
@@ -1148,13 +1288,13 @@ html { scroll-behavior:smooth }
   .flow-icon { width:42px; height:42px }
   .landing-proof,.landing-quote-band,.landing-footer { width:calc(100% - 30px) }
   .landing-proof { padding:30px 3% 72px }
-  .landing-proof>h2 { margin-bottom:25px; letter-spacing:-1.2px }
+  .landing-proof>h2 { margin-bottom:25px; letter-spacing:0 }
   .feature-grid { grid-template-columns:1fr; gap:10px }
   .feature-card { min-height:0; padding:19px }
   .feature-icon { margin-bottom:18px }
   .landing-quote-band { min-height:280px; padding:38px 24px; margin-bottom:60px }
   .quote-band-mark { left:20px }
-  .landing-quote-band p { font-size:27px }
+  .landing-quote-band p { font-size:27px; letter-spacing:0 }
   .landing-footer { flex-wrap:wrap; gap:12px }
   .landing-footer>span { flex-basis:100%; order:3 }
   .dashboard-shell { display:flex; flex-direction:column }

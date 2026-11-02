@@ -47,6 +47,7 @@ export default function App() {
   const fileRef = useRef(null);
   const segmentRefs = useRef(new Map());
   const selected = useMemo(() => recordings.find((row) => row.id === selectedId) || null, [recordings, selectedId]);
+  const selectedStatus = selected?.status;
 
   useEffect(() => { recordingsRef.current = recordings; }, [recordings]);
 
@@ -94,8 +95,10 @@ export default function App() {
   }, [token]);
 
   useEffect(() => {
-    if (token && selectedId) refreshReview(selectedId, showDismissed);
-  }, [token, selectedId, showDismissed, refreshReview]);
+    if (token && selectedId && selectedStatus && !ACTIVE.has(selectedStatus)) {
+      refreshReview(selectedId, showDismissed);
+    }
+  }, [token, selectedId, selectedStatus, showDismissed, refreshReview]);
 
   useEffect(() => {
     if (!token || !recordings.some((row) => ACTIVE.has(row.status))) return undefined;

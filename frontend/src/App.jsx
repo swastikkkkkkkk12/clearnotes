@@ -23,6 +23,7 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem('clearnotes-token') || '');
   const [user, setUser] = useState(null);
   const [authMode, setAuthMode] = useState('login');
+  const [authVisible, setAuthVisible] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [recordings, setRecordings] = useState([]);
@@ -111,6 +112,7 @@ export default function App() {
   function signOut() {
     localStorage.removeItem('clearnotes-token'); setToken(''); setUser(null);
     setRecordings([]); setSelectedId(null); setNotes([]); setTranscript([]); setAudioUrl(''); setPassword('');
+    setAuthVisible(false);
   }
 
   async function submitAuth(event) {
@@ -216,32 +218,52 @@ export default function App() {
     } catch (cause) { setError(ERROR_TEXT(cause)); }
   }
 
-  if (!token || !user) return <main className="auth-shell"><section className="auth-card">
-    <Brand /><p className="eyebrow">A clearer way to follow up</p>
-    <h1>{authMode === 'login' ? 'Welcome back' : 'Create your account'}</h1>
-    <p className="muted">Turn meeting audio into evidence-linked notes and actions.</p>
-    <form className="stack-form" onSubmit={submitAuth}>
-      <label>Email address<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></label>
-      <label>Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={authMode === 'register' ? 12 : undefined} autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} required /></label>
-      {authMode === 'register' && <p className="field-hint">Use at least 12 characters.</p>}
-      {error && <p className="inline-error" role="alert">{error}</p>}
-      <button className="button button-primary full-button" disabled={busyAuth}>{busyAuth ? 'Please wait…' : authMode === 'login' ? 'Sign in' : 'Create account'}</button>
-    </form>
-    <button className="text-button auth-switch" onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setError(''); }}>
-      {authMode === 'login' ? 'New to ClearNotes? Create an account' : 'Already have an account? Sign in'}
-    </button>
-  </section></main>;
+  if (!token) {
+    if (!authVisible) return <LandingPage
+      onLogin={() => { setAuthMode('login'); setError(''); setAuthVisible(true); }}
+      onRegister={() => { setAuthMode('register'); setError(''); setAuthVisible(true); }}
+    />;
+    return <main className="auth-shell"><section className="auth-card">
+      <button className="text-button auth-back" onClick={() => { setAuthVisible(false); setError(''); }}>← Back to ClearNotes</button>
+      <Brand /><p className="eyebrow">A clearer way to follow up</p>
+      <h1>{authMode === 'login' ? 'Welcome back' : 'Create your account'}</h1>
+      <p className="muted">Turn meeting audio into evidence-linked notes and actions.</p>
+      <form className="stack-form" onSubmit={submitAuth}>
+        <label>Email address<input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required /></label>
+        <label>Password<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={authMode === 'register' ? 12 : undefined} autoComplete={authMode === 'register' ? 'new-password' : 'current-password'} required /></label>
+        {authMode === 'register' && <p className="field-hint">Use at least 12 characters.</p>}
+        {error && <p className="inline-error" role="alert">{error}</p>}
+        <button className="button button-primary full-button" disabled={busyAuth}>{busyAuth ? 'Please wait…' : authMode === 'login' ? 'Sign in' : 'Create account'}</button>
+      </form>
+      <button className="text-button auth-switch" onClick={() => { setAuthMode(authMode === 'login' ? 'register' : 'login'); setError(''); }}>
+        {authMode === 'login' ? 'New to ClearNotes? Create an account' : 'Already have an account? Sign in'}
+      </button>
+    </section></main>;
+  }
+  if (!user) return <main className="auth-shell"><div className="loading-line"><span className="spinner" /> Opening your workspace…</div></main>;
 
   const groups = [
     { type: 'DECISION', label: 'Decisions' }, { type: 'TASK', label: 'Tasks' }, { type: 'MEETING', label: 'Meetings' },
   ].map((group) => ({ ...group, items: notes.filter((note) => note.type === group.type) }));
 
-  return <div className="app-shell">
-    <header className="topbar"><Brand /><div className="account-controls"><span>{user.email}</span><button className="text-button" onClick={signOut}>Sign out</button></div></header>
+  return <div className="app-shell dashboard-shell" id="top">
+    <aside className="dashboard-sidebar">
+      <Brand />
+      <p className="sidebar-label">WORKSPACE</p>
+      <nav className="sidebar-nav" aria-label="Workspace navigation">
+        <a className="sidebar-link sidebar-link-active" href="#overview"><span>⌂</span> Overview</a>
+        <a className="sidebar-link" href="#recording-library"><span>♫</span> My recordings</a>
+        <a className="sidebar-link" href="#capture-recording"><span>＋</span> New recording</a>
+        <a className="sidebar-link" href="#recording-review"><span>▤</span> Meeting notes</a>
+      </nav>
+      <div className="sidebar-account"><span className="account-avatar">{user.email?.[0]?.toUpperCase() || 'U'}</span><span className="sidebar-email" title={user.email}>{user.email}</span></div>
+    </aside>
+    <div className="dashboard-main">
+    <header className="topbar"><span className="workspace-context">ClearNotes workspace</span><div className="account-controls"><span>{user.email}</span><button className="text-button" onClick={signOut}>Sign out</button></div></header>
     <main className="main-content">
-      <section className="welcome-row"><div><p className="eyebrow">Your meeting workspace</p><h1>Good notes start here.</h1><p className="muted">Upload a recording or capture one now. ClearNotes will transcribe it and organize the follow-ups.</p></div><span className="recording-count">{page.totalElements} recording{page.totalElements === 1 ? '' : 's'}</span></section>
+      <section className="welcome-row" id="overview"><div><p className="eyebrow">Your meeting workspace</p><h1>Good notes start here.</h1><p className="muted">Upload a recording or capture one now. ClearNotes will transcribe it and organize the follow-ups.</p></div><span className="recording-count">{page.totalElements} recording{page.totalElements === 1 ? '' : 's'}</span></section>
 
-      <section className="upload-card" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); uploadFile(e.dataTransfer.files?.[0]); }}>
+      <section className="upload-card" id="capture-recording" onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); uploadFile(e.dataTransfer.files?.[0]); }}>
         <div className="upload-icon" aria-hidden="true">↥</div><div className="upload-copy"><h2>Start with a recording</h2><p className="muted">Drop an audio file here or choose one from your device. MP3, WAV, M4A, OGG, WebM, or FLAC · up to 100 MB.</p></div>
         <input ref={fileRef} className="visually-hidden" type="file" accept="audio/*,.flac" onChange={chooseFile} />
         <button className="button button-primary" onClick={() => fileRef.current?.click()} disabled={uploading}>{uploading ? 'Processing audio…' : 'Choose audio file'}</button>
@@ -254,7 +276,7 @@ export default function App() {
       {(error || notice) && <div className={error ? 'banner banner-error' : 'banner banner-notice'} role={error ? 'alert' : 'status'}>{error || notice}<button className="banner-close" onClick={() => { setError(''); setNotice(''); }} aria-label="Dismiss">×</button></div>}
 
       <section className="workspace-grid">
-        <aside className="recordings-panel panel">
+        <aside className="recordings-panel panel" id="recording-library">
           <div className="panel-heading"><div><p className="eyebrow">Library</p><h2>My recordings</h2></div><button className="icon-button" onClick={() => refreshList(token, page.page)} aria-label="Refresh recordings">↻</button></div>
           {!recordings.length ? <div className="empty-state"><div className="empty-art">♫</div><h3>No recordings yet</h3><p>Your audio and notes will appear here.</p></div> : <div className="recording-list">{recordings.map((row) =>
             <button key={row.id} className={`recording-row ${row.id === selectedId ? 'recording-row-active' : ''}`} onClick={() => setSelectedId(row.id)}>
@@ -263,7 +285,7 @@ export default function App() {
           {page.totalPages > 1 && <div className="pagination"><button disabled={page.page === 0} onClick={() => refreshList(token, page.page - 1)}>Previous</button><span>{page.page + 1} / {page.totalPages}</span><button disabled={page.page + 1 >= page.totalPages} onClick={() => refreshList(token, page.page + 1)}>Next</button></div>}
         </aside>
 
-        <section className="review-panel panel">
+        <section className="review-panel panel" id="recording-review">
           {!selected ? <div className="empty-review"><div className="empty-art">✦</div><h2>Choose a recording</h2><p className="muted">Your decisions, tasks, and transcript will show up here.</p></div> : <>
             <div className="review-header"><div className="review-title"><p className="eyebrow">Recording review</p><h2 title={selected.originalFilename}>{selected.originalFilename}</h2><p className="muted">Added {dateLabel(selected.createdAt)} <span className="dot-separator">·</span> {selected.status}</p></div><div className="export-actions"><button className="button button-light button-small" onClick={() => exportAs('markdown')}>Export .md</button><button className="button button-light button-small" onClick={() => exportAs('pdf')}>Export PDF</button></div></div>
             {busyReview ? <div className="loading-line"><span className="spinner" /> Loading transcript and notes…</div> : <>
@@ -304,6 +326,51 @@ export default function App() {
     </main>
     {audioUrl && selected && <div className="audio-dock"><span className="dock-title">Now reviewing</span><strong>{selected.originalFilename}</strong><audio ref={audioRef} controls preload="none" src={audioUrl} onError={() => setError('Audio playback is unavailable for this recording.')} /></div>}
     <footer className="footer-note">ClearNotes organizes what was said. Missing details stay marked as “Not specified.”</footer>
+    </div>
+  </div>;
+}
+
+function LandingPage({ onLogin, onRegister }) {
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const quotes = [
+    'The meeting ends. The clarity stays.',
+    'Keep the decision close to the words that led to it.',
+    'A follow-up is easier when the details are still there.',
+  ];
+  useEffect(() => {
+    const timer = window.setInterval(() => setQuoteIndex((value) => (value + 1) % quotes.length), 5200);
+    return () => window.clearInterval(timer);
+  }, []);
+  return <div className="landing-shell" id="top">
+    <header className="landing-nav">
+      <Brand />
+      <nav className="landing-links" aria-label="Main navigation"><a href="#how-it-works">How it works</a><a href="#why-clearnotes">Why ClearNotes</a></nav>
+      <div className="landing-actions"><button className="text-button landing-login" onClick={onLogin}>Sign in</button><button className="button button-primary" onClick={onRegister}>Get started</button></div>
+    </header>
+    <main>
+      <section className="landing-hero">
+        <div className="hero-copy"><p className="eyebrow">MEETING NOTES, GROUNDED IN THE RECORDING</p>
+          <h1>Meetings move fast.<br /><span>Keep what matters.</span></h1>
+          <p className="hero-description">ClearNotes turns a recording into a transcript, decisions, and next steps—with each note linked to its moment in the conversation.</p>
+          <div className="hero-actions"><button className="button button-primary" onClick={onRegister}>Create your workspace <span aria-hidden="true">→</span></button><button className="text-button" onClick={onLogin}>I already have an account</button></div>
+        </div>
+        <div className="hero-visual" aria-label="ClearNotes turns recordings into transcript-linked notes">
+          <div className="hero-visual-top"><span className="visual-status"><i /> A clearer record</span><span className="visual-wave" aria-hidden="true">▂ ▅ ▃ ▇ ▄ ▆ ▂ ▅ ▇ ▃ ▅ ▂ ▆ ▄</span></div>
+          <div className="visual-quote"><span className="quote-mark">“</span><p>{quotes[quoteIndex]}</p><span className="quote-progress"><i style={{ transform: `translateX(${quoteIndex * 100}%)` }} /></span></div>
+          <div className="visual-flow"><div className="flow-step"><span className="flow-icon">♫</span><span>Recording</span></div><span className="flow-connector" /><div className="flow-step"><span className="flow-icon">▤</span><span>Transcript</span></div><span className="flow-connector" /><div className="flow-step"><span className="flow-icon">✦</span><span>Notes</span></div></div>
+          <div className="visual-tags"><span>Decision</span><span>Task</span><span>Meeting</span><span>Evidence linked</span></div>
+        </div>
+      </section>
+      <section className="landing-proof" id="how-it-works"><p className="eyebrow">FROM AUDIO TO FOLLOW-THROUGH</p><h2>One recording. A clearer next step.</h2>
+        <div className="feature-grid">
+          <article className="feature-card"><span className="feature-number">01</span><div className="feature-icon">↥</div><h3>Bring the conversation</h3><p>Upload an audio file or record directly with your microphone.</p></article>
+          <article className="feature-card"><span className="feature-number">02</span><div className="feature-icon">▤</div><h3>Keep the full context</h3><p>Read the transcript with timestamps and return to the moment behind a note.</p></article>
+          <article className="feature-card"><span className="feature-number">03</span><div className="feature-icon">✦</div><h3>See what comes next</h3><p>Review decisions, tasks, and meeting details. Missing owners or dates stay “Not specified.”</p></article>
+        </div>
+      </section>
+      <section className="landing-quote-band" id="why-clearnotes"><span className="quote-band-mark">“</span><p>Useful notes should help you remember what happened—and show you where to listen again.</p><span className="quote-band-caption">A ClearNotes principle</span><button className="button button-light" onClick={onRegister}>Start with a recording <span aria-hidden="true">→</span></button></section>
+    </main>
+    <footer className="landing-footer"><Brand /><span>ClearNotes keeps each note connected to its source.</span><button className="text-button" onClick={onLogin}>Sign in</button></footer>
   </div>;
 }
 

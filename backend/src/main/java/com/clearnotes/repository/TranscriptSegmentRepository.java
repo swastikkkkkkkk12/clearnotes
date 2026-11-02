@@ -8,4 +8,5 @@ import java.util.List;
 public interface TranscriptSegmentRepository extends JpaRepository<TranscriptSegment, Long> {
     void deleteAllByRecording_Id(Long recordingId);
     List<TranscriptSegment> findAllByRecording_IdOrderBySegmentIndexAsc(Long recordingId);
+    List<TranscriptSegment> findAllByRecording_IdAndRecording_User_IdOrderBySegmentIndexAsc(Long recordingId, Long userId);
 }

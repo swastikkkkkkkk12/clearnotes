@@ -72,6 +72,9 @@ public class NoteItem extends AuditedEntity {
     public LocalDate getDueDate() { return dueDate; }
     public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
     public LocalDate getMeetingDate() { return meetingDate; }
+    public void setMeetingDate(LocalDate meetingDate) { this.meetingDate = meetingDate; }
     public LocalTime getMeetingStartTime() { return meetingStartTime; }
+    public void setMeetingStartTime(LocalTime meetingStartTime) { this.meetingStartTime = meetingStartTime; }
     public LocalTime getMeetingEndTime() { return meetingEndTime; }
+    public void setMeetingEndTime(LocalTime meetingEndTime) { this.meetingEndTime = meetingEndTime; }
 }

@@ -34,10 +34,17 @@ public class AudioStorageService {
         }
     }
 
-    public void delete(String storedName) {
-        try { Files.deleteIfExists(resolve(storedName)); }
-        catch (IOException exception) { log.warn("Could not clean up stored upload {}", storedName, exception); }
+    public boolean delete(String storedName) {
+        try {
+            Files.deleteIfExists(resolve(storedName));
+            return true;
+        } catch (IOException exception) {
+            log.warn("Could not clean up stored upload {}", storedName, exception);
+            return false;
+        }
     }
+
+    public Path pathFor(String storedName) { return resolve(storedName); }
 
     private Path resolve(String storedName) {
         Path target = uploadDirectory.resolve(storedName).normalize();

@@ -43,6 +43,7 @@ The credentials in `.env.example` are for local development only. Do not use the
 - `POST /api/auth/login` accepts the same fields and returns a bearer token.
 - `GET /api/auth/me` requires `Authorization: Bearer <accessToken>` and returns the signed-in user's ID and email.
 - `POST /api/recordings` requires a bearer token and multipart fields `file` and optional `deleteAudioAfterProcessing` (`true` or `false`). It accepts MP3, WAV, M4A, OGG, WebM, and FLAC files up to 100 MB, stores the audio in a Docker volume, and creates a `QUEUED` processing job.
+- `GET /api/jobs/{jobId}` requires the same bearer token and returns the job status and timestamps. The authenticated user's ownership is checked for every status lookup. Jobs transcribe audio in the background and save timestamped transcript segments. The `EXTRACTING` stage is a placeholder until Phase 6 adds note extraction.
 - `POST http://localhost:8000/transcribe` accepts multipart field `file` and optional `language` (for example `en`). It returns the detected language and transcript segments with `start`, `end`, and `text`. The default CPU model is `tiny`; the model downloads on the first transcription and is cached in a Docker volume.
 
 Try the transcription endpoint with an audio file:

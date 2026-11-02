@@ -29,10 +29,13 @@ services:
       JWT_SECRET: "${JWT_SECRET:?Set JWT_SECRET in .env using the instructions in .env.example}"
       UPLOAD_DIR: /data/clearnotes/uploads
       MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS: never
+      TRANSCRIPTION_BASE_URL: http://transcription-service:8000
     volumes:
       - clearnotes_uploads:/data/clearnotes/uploads
     depends_on:
       db:
+        condition: service_healthy
+      transcription-service:
         condition: service_healthy
 
   transcription-service:

@@ -26,6 +26,8 @@ clearnotes:
     secret: ${JWT_SECRET}
     issuer: clearnotes
     access-token-ttl-seconds: 3600
+  transcription:
+    base-url: ${TRANSCRIPTION_BASE_URL:http://localhost:8000}
 
 management:
   endpoints:

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AudioCapture from './components/AudioCapture.jsx';
+import WorkflowShowcase from './components/WorkflowShowcase.jsx';
 import {
   apiBase, authenticate, createAudioLink, deleteNote, downloadBlob, downloadExport,
   getDecisionRecords, getJob, getMe, getNotes, getTranscript, listRecordings, updateDecisionRecord, updateNote, updateNoteState,
@@ -400,6 +401,7 @@ function LandingPage({ onLogin, onRegister }) {
           <div className="visual-tags"><span>Decision</span><span>Task</span><span>Meeting</span><span>Evidence linked</span></div>
         </div>
       </section>
+      <WorkflowShowcase onGetStarted={onRegister} />
       <section className="landing-proof" id="how-it-works"><p className="eyebrow">FROM AUDIO TO FOLLOW-THROUGH</p><h2>One recording. A clearer next step.</h2>
         <div className="feature-grid">
           <article className="feature-card"><span className="feature-number">01</span><div className="feature-icon">↥</div><h3>Bring the conversation</h3><p>Upload an audio file or record directly with your microphone.</p></article>

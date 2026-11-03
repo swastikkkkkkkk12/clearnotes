@@ -7,7 +7,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-clearnotes_dev_password}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_dev_password}
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -20,7 +20,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
     environment:
       SPRING_APPLICATION_NAME: clearnotes-backend
       SPRING_DATASOURCE_URL: "jdbc:mysql://db:3306/${MYSQL_DATABASE:-clearnotes}?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
@@ -44,7 +44,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "${FRONTEND_PORT:-5173}:5173"
+      - "127.0.0.1:${FRONTEND_PORT:-5173}:5173"
     environment:
       VITE_API_BASE_URL: "http://localhost:${BACKEND_PORT:-8080}"
     depends_on:
@@ -53,7 +53,7 @@ services:
   transcription-service:
     build: ./transcription-service
     ports:
-      - "${TRANSCRIPTION_PORT:-8000}:8000"
+      - "127.0.0.1:${TRANSCRIPTION_PORT:-8000}:8000"
     environment:
       WHISPER_MODEL: ${WHISPER_MODEL:-tiny}
       WHISPER_DEVICE: cpu
